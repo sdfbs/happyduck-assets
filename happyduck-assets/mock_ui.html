@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Duck AI — UI Mockup & Visual States</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="branding/styles.css" />
+  <link rel="stylesheet" href="branding/captions.css" />
+  <link rel="stylesheet" href="branding/text-edit.css" />
+  <style>
+    body {
+      background: #0b0c10;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .controls-header {
+      background: #16181f;
+      border: 1px solid rgba(255, 212, 0, 0.2);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .controls-header h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      color: #ffd400;
+    }
+    .state-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .state-btn {
+      background: #222633;
+      color: #cbd5e1;
+      border: 1px solid #333a4d;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .state-btn:hover, .state-btn.active {
+      background: #ffd400;
+      color: #0b0c10;
+      border-color: #ffd400;
+    }
+    .preview-frame-wrapper {
+      position: relative;
+      background: #111318;
+      border: 2px solid #2d3343;
+      border-radius: 16px;
+      width: 420px;
+      height: 600px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+    .panel-container {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+    .mock-wave-svg {
+      width: 100%;
+      height: 180px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="controls-header">
+    <h2>🦆 مستعرض لقطات واجهة Happy Duck AI الحقيقية (دقة 420 × 600)</h2>
+    <div class="state-buttons">
+      <button class="state-btn active" onclick="showState('ui_01', this)">1. التقطيع قبل التحليل</button>
+      <button class="state-btn" onclick="showState('ui_02', this)">2. الموجة الصوتية والخط الأصفر</button>
+      <button class="state-btn" onclick="showState('ui_03', this)">3. وضع إزالة التكرار</button>
+      <button class="state-btn" onclick="showState('ui_04', this)">4. وضع إزالة السكتات</button>
+      <button class="state-btn" onclick="showState('ui_05', this)">5. شاشة التحميل والتقدم</button>
+      <button class="state-btn" onclick="showState('ui_06', this)">6. معرض قوالب الكابشن</button>
+      <button class="state-btn" onclick="showState('ui_07', this)">7. جاري إنشاء الكابشن</button>
+      <button class="state-btn" onclick="showState('ui_08', this)">8. الكابشن جاهز وزر التعديل</button>
+      <button class="state-btn" onclick="showState('ui_09', this)">9. نافذة محرر الكابشن</button>
+    </div>
+  </div>
+
+  <div class="preview-frame-wrapper">
+    <div class="panel-container" id="panel-viewport">
+      <!-- Main Extension UI Header -->
+      <header class="app-header" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#161922;border-bottom:1px solid #222633;">
+        <div class="header-left" style="display:flex;align-items:center;gap:8px;">
+          <img src="branding/custom_duck.png" style="width:24px;height:24px;border-radius:50%;" />
+          <span style="font-size:13px;font-weight:700;color:#fff;">Happy Duck AI</span>
+        </div>
+        <div class="header-right" style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:10px;padding:2px 8px;background:rgba(255,212,0,0.15);color:#ffd400;border-radius:10px;border:1px solid rgba(255,212,0,0.3);font-weight:700;">🦆 Pro</span>
+          <button style="background:#222633;border:1px solid #333a4d;color:#cbd5e1;padding:2px 6px;border-radius:4px;font-size:10px;">EN</button>
+        </div>
+      </header>
+
+      <!-- Navigation Tabs -->
+      <nav class="tabs-nav" style="display:flex;background:#111318;border-bottom:1px solid #222633;">
+        <button class="tab active" id="tab-btn-smartcut" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;background:none;border:none;border-bottom:2px solid #ffd400;color:#ffd400;font-weight:700;cursor:pointer;">
+          <img src="branding/smartcut-tab.png" style="width:16px;height:16px;">
+          <span style="font-size:12px;">التقطيع الذكي</span>
+        </button>
+        <button class="tab" id="tab-btn-captions" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;background:none;border:none;border-bottom:2px solid transparent;color:#94a3b8;cursor:pointer;">
+          <img src="branding/captions-tab.png" style="width:16px;height:16px;">
+          <span style="font-size:12px;">كابشن</span>
+        </button>
+        <button class="tab" id="tab-btn-broll" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 0;background:none;border:none;border-bottom:2px solid transparent;color:#94a3b8;cursor:pointer;">
+          <img src="branding/broll-tab.png" style="width:16px;height:16px;">
+          <span style="font-size:12px;">B-Roll</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: SmartCut -->
+      <div id="tab-content-smartcut" style="padding:12px;">
+        <div class="hd-wave-card" style="background:#161922;border:1px solid #2d3343;border-radius:12px;padding:10px;margin-bottom:12px;">
+          <!-- Toggle -->
+          <div class="cutting-mode-toggle hd-wave-modes" style="display:flex;background:#0d0f14;padding:3px;border-radius:8px;margin-bottom:8px;">
+            <button id="mock-mode-silence" style="flex:1;background:none;border:none;color:#94a3b8;padding:6px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;">إزالة السكتات</button>
+            <button id="mock-mode-repetition" style="flex:1;background:#ffd400;border:none;color:#0b0c10;padding:6px;font-size:12px;font-weight:700;border-radius:6px;cursor:pointer;">إزالة التكرار</button>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;margin-bottom:6px;">
+            <div style="font-size:11px;display:flex;gap:10px;">
+              <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:8px;height:8px;background:#10b981;border-radius:50%;"></i>يبقى</span>
+              <span style="display:flex;align-items:center;gap:4px;"><i style="display:inline-block;width:8px;height:8px;background:#ef4444;border-radius:50%;"></i>يُحذف</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <button style="background:#222633;border:1px solid #333a4d;color:#cbd5e1;padding:1px 6px;border-radius:4px;font-size:10px;">−</button>
+              <button style="background:#222633;border:1px solid #333a4d;color:#cbd5e1;padding:1px 6px;border-radius:4px;font-size:10px;">⤢</button>
+              <button style="background:#222633;border:1px solid #333a4d;color:#cbd5e1;padding:1px 6px;border-radius:4px;font-size:10px;">+</button>
+            </div>
+          </div>
+
+          <!-- Canvas / Waveform Area -->
+          <div style="position:relative;height:160px;background:#0d0f14;border-radius:8px;overflow:hidden;border:1px solid #222633;">
+            <!-- Empty state (ui_01) -->
+            <div id="state-wave-empty" style="display:none;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#64748b;font-size:12px;text-align:center;">
+              <span>اختر كليبًا من التايم لاين للبدء</span>
+              <div style="margin-top:10px;">
+                <button style="background:#ffd400;color:#0b0c10;border:none;padding:6px 14px;border-radius:20px;font-weight:700;font-size:12px;cursor:pointer;">▶ اضغط لتحليل الصوت</button>
+              </div>
+            </div>
+
+            <!-- Waveform SVG with yellow line and dots (ui_02, ui_03, ui_04) -->
+            <div id="state-wave-active" style="display:block;width:100%;height:100%;position:relative;">
+              <svg class="mock-wave-svg" viewBox="0 0 400 160" preserveAspectRatio="none">
+                <!-- Audio Wave bars -->
+                <path d="M5,80 L15,80 M20,55 L20,105 M25,35 L25,125 M30,45 L30,115 M35,65 L35,95 M40,80 L60,80 M65,25 L65,135 M70,15 L70,145 M75,40 L75,120 M80,80 L105,80 M110,45 L110,115 M115,20 L115,140 M120,30 L120,130 M125,55 L125,105 M130,80 L160,80 M165,25 L165,135 M170,15 L170,145 M175,35 L175,125 M180,80 L210,80 M215,50 L215,110 M220,20 L220,140 M225,30 L225,130 M230,80 L260,80 M265,25 L265,135 M270,10 L270,150 M275,35 L275,125 M280,80 L320,80 M325,40 L325,120 M330,15 L330,145 M335,30 L335,130 M340,80 L370,80 M375,45 L375,115 M380,20 L380,140 M385,35 L385,125 M390,80 L395,80" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                <!-- Threshold Yellow Line -->
+                <line x1="0" y1="100" x2="400" y2="100" stroke="#ffd400" stroke-width="2" stroke-dasharray="4,3" />
+                <!-- Keep / Delete Dots -->
+                <circle cx="25" cy="30" r="4" fill="#10b981" />
+                <circle cx="50" cy="80" r="4" fill="#ef4444" />
+                <circle cx="70" cy="12" r="4" fill="#10b981" />
+                <circle cx="95" cy="80" r="4" fill="#ef4444" />
+                <circle cx="120" cy="18" r="4" fill="#10b981" />
+                <circle cx="145" cy="80" r="4" fill="#ef4444" />
+                <circle cx="170" cy="12" r="4" fill="#10b981" />
+                <circle cx="195" cy="80" r="4" fill="#ef4444" />
+                <circle cx="220" cy="18" r="4" fill="#10b981" />
+                <circle cx="245" cy="80" r="4" fill="#ef4444" />
+                <circle cx="270" cy="8" r="4" fill="#10b981" />
+                <circle cx="300" cy="80" r="4" fill="#ef4444" />
+                <circle cx="330" cy="12" r="4" fill="#10b981" />
+                <circle cx="355" cy="80" r="4" fill="#ef4444" />
+                <circle cx="380" cy="18" r="4" fill="#10b981" />
+              </svg>
+            </div>
+
+            <!-- In-Canvas Progress / Loading (ui_05) -->
+            <div id="state-wave-loading" style="display:none;position:absolute;inset:0;background:rgba(13,15,20,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="display:flex;gap:3px;align-items:flex-end;height:24px;margin-bottom:8px;">
+                <span style="width:3px;height:12px;background:#ffd400;border-radius:2px;"></span>
+                <span style="width:3px;height:24px;background:#ffd400;border-radius:2px;"></span>
+                <span style="width:3px;height:18px;background:#ffd400;border-radius:2px;"></span>
+                <span style="width:3px;height:10px;background:#ffd400;border-radius:2px;"></span>
+                <span style="width:3px;height:20px;background:#ffd400;border-radius:2px;"></span>
+              </div>
+              <div id="mock-progress-label" style="color:#ffd400;font-size:12px;font-weight:700;">جاري تحليل الصوت…</div>
+            </div>
+          </div>
+
+          <!-- Line info -->
+          <div style="display:flex;justify-content:space-between;padding:6px 2px;font-size:11px;color:#94a3b8;">
+            <span>🎚 خط المتحدث: <b style="color:#ffd400;">-28 dB</b></span>
+            <span>↕ اسحب الخط | 🖱 زوم</span>
+          </div>
+
+          <!-- Sliders (ui_04) -->
+          <div id="mock-sliders-section" style="margin-top:6px;">
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;">
+                <span>⏱ أقصر سكتة تُحذف</span>
+                <span style="color:#ffd400;font-weight:700;">0.30 s</span>
+              </div>
+              <input type="range" style="width:100%;accent-color:#ffd400;" value="30" />
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+                  <span>🛡 هامش قبل الكلام</span>
+                  <span style="color:#ffd400;">60 ms</span>
+                </div>
+                <input type="range" style="width:100%;accent-color:#ffd400;" value="20" />
+              </div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;">
+                  <span>🛡 هامش بعد الكلام</span>
+                  <span style="color:#ffd400;">60 ms</span>
+                </div>
+                <input type="range" style="width:100%;accent-color:#ffd400;" value="20" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Cut & Clean Button -->
+          <div style="margin-top:12px;">
+            <button style="width:100%;background:#ffd400;color:#0b0c10;font-weight:800;font-size:13px;padding:10px;border:none;border-radius:8px;cursor:pointer;">
+              ✂️ قص وتنقية
+            </button>
+          </div>
+        </div>
+
+        <!-- Success Toast Mock -->
+        <div id="mock-sc-toast" style="display:none;background:#10b981;color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:700;text-align:center;margin-top:8px;">
+          تم حذف 8 كليب بنجاح ✓
+        </div>
+      </div>
+
+      <!-- TAB 2: Captions -->
+      <div id="tab-content-captions" style="display:none;padding:12px;">
+        <!-- Caption Mode Switcher -->
+        <div class="cutting-mode-toggle hd-wave-modes" style="display:flex;background:#0d0f14;padding:3px;border-radius:8px;margin-bottom:12px;">
+          <button style="flex:1;background:#ffd400;border:none;color:#0b0c10;padding:6px;font-size:12px;font-weight:700;border-radius:6px;">قوالب</button>
+          <button style="flex:1;background:none;border:none;color:#94a3b8;padding:6px;font-size:12px;font-weight:600;border-radius:6px;">يدوي (MOGRT)</button>
+        </div>
+
+        <!-- Templates Gallery (ui_06) -->
+        <div id="mock-caption-gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div style="background:#161922;border:2px solid #ffd400;border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;color:#ffd400;margin-bottom:4px;">Modern</div>
+            <div style="background:#000;border-radius:4px;padding:8px 2px;font-size:11px;font-weight:800;">
+              كلمة <span style="color:#ffd400;text-shadow:0 0 8px rgba(255,212,0,0.6);">مضيئة</span>
+            </div>
+          </div>
+          <div style="background:#161922;border:1px solid #2d3343;border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;color:#cbd5e1;margin-bottom:4px;">Box Highlight</div>
+            <div style="background:#000;border-radius:4px;padding:8px 2px;font-size:11px;font-weight:800;">
+              مربع <span style="background:#ffd400;color:#000;padding:0 3px;border-radius:2px;">خلفي</span>
+            </div>
+          </div>
+          <div style="background:#161922;border:1px solid #2d3343;border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;color:#cbd5e1;margin-bottom:4px;">TikTok Pop</div>
+            <div style="background:#000;border-radius:4px;padding:8px 2px;font-size:11px;font-weight:800;">
+              تكبير <span style="color:#38bdf8;">حركي</span>
+            </div>
+          </div>
+          <div style="background:#161922;border:1px solid #2d3343;border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;color:#cbd5e1;margin-bottom:4px;">Glow Pulse</div>
+            <div style="background:#000;border-radius:4px;padding:8px 2px;font-size:11px;font-weight:800;">
+              توهج <span style="color:#f43f5e;text-shadow:0 0 10px #f43f5e;">نبضي</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Captions Progress Bar (ui_07) -->
+        <div id="mock-caption-progress" style="display:none;background:#161922;border:1px solid #2d3343;border-radius:8px;padding:12px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;">
+            <span style="color:#ffd400;">Converting speech to text...</span>
+            <span style="color:#ffd400;font-weight:700;">55%</span>
+          </div>
+          <div style="width:100%;height:6px;background:#222633;border-radius:3px;overflow:hidden;">
+            <div style="width:55%;height:100%;background:#ffd400;border-radius:3px;"></div>
+          </div>
+        </div>
+
+        <!-- Post-Creation Success & Edit Button (ui_08) -->
+        <div id="mock-caption-done" style="display:none;text-align:center;margin-bottom:12px;">
+          <div style="background:rgba(16,185,129,0.15);border:1px solid #10b981;color:#10b981;padding:8px;border-radius:8px;font-size:12px;font-weight:700;margin-bottom:8px;">
+            Captions generated successfully! 🦆
+          </div>
+          <button style="background:#3b82f6;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">
+            ✏️ تعديل كابشن التايم لاين
+          </button>
+        </div>
+
+        <button style="width:100%;background:#ffd400;color:#0b0c10;font-weight:800;font-size:13px;padding:10px;border:none;border-radius:8px;cursor:pointer;">
+          ✨ إنشاء كابشن
+        </button>
+      </div>
+
+      <!-- MODAL: Caption Editor (ui_09) -->
+      <div id="mock-caption-editor-modal" style="display:none;position:absolute;inset:0;background:rgba(11,12,16,0.96);z-index:99;padding:12px;flex-direction:column;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2d3343;padding-bottom:8px;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:700;color:#ffd400;">تعديل كابشن التايم لاين</span>
+          <button style="background:#222633;border:1px solid #3b82f6;color:#38bdf8;padding:3px 8px;border-radius:4px;font-size:11px;">🔄 سحب الكابشن</button>
+        </div>
+        <div style="background:#000;border:1px solid #222;border-radius:6px;height:45px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:800;color:#fff;">أهلاً بكم في <span style="color:#ffd400;">Happy Duck AI</span></span>
+        </div>
+        <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:6px;background:#161922;padding:6px;border-radius:6px;border:1px solid #2d3343;">
+            <span style="font-size:10px;color:#94a3b8;font-family:monospace;">00:01.20</span>
+            <input type="text" value="أهلاً بكم في Happy Duck AI" style="flex:1;background:#0d0f14;border:1px solid #333a4d;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;font-family:'Cairo';" />
+            <button style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#161922;padding:6px;border-radius:6px;border:1px solid #ffd400;">
+            <span style="font-size:10px;color:#94a3b8;font-family:monospace;">00:03.45</span>
+            <input type="text" value="مساعد المونتاج الذكي الأسرع لبريمير" style="flex:1;background:#0d0f14;border:1px solid #ffd400;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;font-family:'Cairo';" />
+            <button style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#161922;padding:6px;border-radius:6px;border:1px solid #2d3343;">
+            <span style="font-size:10px;color:#94a3b8;font-family:monospace;">00:06.10</span>
+            <input type="text" value="وفر ساعات الشغل بضغطة زر واحدة" style="flex:1;background:#0d0f14;border:1px solid #333a4d;color:#fff;padding:4px 6px;border-radius:4px;font-size:11px;font-family:'Cairo';" />
+            <button style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;border-top:1px solid #2d3343;padding-top:8px;">
+          <button style="background:#334155;color:#fff;border:none;padding:6px 12px;border-radius:4px;font-size:12px;">إلغاء</button>
+          <button style="background:#10b981;color:#fff;border:none;padding:6px 18px;border-radius:4px;font-size:12px;font-weight:700;">تطبيق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showState(id, btnEl) {
+      if (btnEl) {
+        document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+      }
+
+      const tabSc = document.getElementById('tab-content-smartcut');
+      const tabCap = document.getElementById('tab-content-captions');
+      const tabBtnSc = document.getElementById('tab-btn-smartcut');
+      const tabBtnCap = document.getElementById('tab-btn-captions');
+
+      const waveEmpty = document.getElementById('state-wave-empty');
+      const waveActive = document.getElementById('state-wave-active');
+      const waveLoading = document.getElementById('state-wave-loading');
+      const modeSil = document.getElementById('mock-mode-silence');
+      const modeRep = document.getElementById('mock-mode-repetition');
+      const sliders = document.getElementById('mock-sliders-section');
+      const scToast = document.getElementById('mock-sc-toast');
+
+      const capProg = document.getElementById('mock-caption-progress');
+      const capDone = document.getElementById('mock-caption-done');
+      const capEditor = document.getElementById('mock-caption-editor-modal');
+
+      // Reset
+      tabSc.style.display = 'none';
+      tabCap.style.display = 'none';
+      tabBtnSc.style.color = '#94a3b8';
+      tabBtnSc.style.borderBottomColor = 'transparent';
+      tabBtnCap.style.color = '#94a3b8';
+      tabBtnCap.style.borderBottomColor = 'transparent';
+      waveEmpty.style.display = 'none';
+      waveActive.style.display = 'none';
+      waveLoading.style.display = 'none';
+      sliders.style.display = 'block';
+      scToast.style.display = 'none';
+      capProg.style.display = 'none';
+      capDone.style.display = 'none';
+      capEditor.style.display = 'none';
+
+      if (id === 'ui_01') {
+        tabSc.style.display = 'block';
+        tabBtnSc.style.color = '#ffd400';
+        tabBtnSc.style.borderBottomColor = '#ffd400';
+        waveEmpty.style.display = 'flex';
+      } else if (id === 'ui_02') {
+        tabSc.style.display = 'block';
+        tabBtnSc.style.color = '#ffd400';
+        tabBtnSc.style.borderBottomColor = '#ffd400';
+        waveActive.style.display = 'block';
+      } else if (id === 'ui_03') {
+        tabSc.style.display = 'block';
+        tabBtnSc.style.color = '#ffd400';
+        tabBtnSc.style.borderBottomColor = '#ffd400';
+        waveActive.style.display = 'block';
+        modeRep.style.background = '#ffd400';
+        modeRep.style.color = '#0b0c10';
+        modeSil.style.background = 'none';
+        modeSil.style.color = '#94a3b8';
+      } else if (id === 'ui_04') {
+        tabSc.style.display = 'block';
+        tabBtnSc.style.color = '#ffd400';
+        tabBtnSc.style.borderBottomColor = '#ffd400';
+        waveActive.style.display = 'block';
+        modeSil.style.background = '#ffd400';
+        modeSil.style.color = '#0b0c10';
+        modeRep.style.background = 'none';
+        modeRep.style.color = '#94a3b8';
+      } else if (id === 'ui_05') {
+        tabSc.style.display = 'block';
+        tabBtnSc.style.color = '#ffd400';
+        tabBtnSc.style.borderBottomColor = '#ffd400';
+        waveActive.style.display = 'block';
+        waveLoading.style.display = 'flex';
+      } else if (id === 'ui_06') {
+        tabCap.style.display = 'block';
+        tabBtnCap.style.color = '#ffd400';
+        tabBtnCap.style.borderBottomColor = '#ffd400';
+      } else if (id === 'ui_07') {
+        tabCap.style.display = 'block';
+        tabBtnCap.style.color = '#ffd400';
+        tabBtnCap.style.borderBottomColor = '#ffd400';
+        capProg.style.display = 'block';
+      } else if (id === 'ui_08') {
+        tabCap.style.display = 'block';
+        tabBtnCap.style.color = '#ffd400';
+        tabBtnCap.style.borderBottomColor = '#ffd400';
+        capDone.style.display = 'block';
+      } else if (id === 'ui_09') {
+        tabCap.style.display = 'block';
+        tabBtnCap.style.color = '#ffd400';
+        tabBtnCap.style.borderBottomColor = '#ffd400';
+        capEditor.style.display = 'flex';
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const state = params.get('state');
+      if (params.get('clean') === '1') {
+        const header = document.querySelector('.controls-header');
+        if (header) header.style.display = 'none';
+        document.body.style.padding = '0';
+        document.body.style.margin = '0';
+        document.body.style.background = '#111318';
+        const frame = document.querySelector('.preview-frame-wrapper');
+        if (frame) {
+          frame.style.border = 'none';
+          frame.style.borderRadius = '0';
+          frame.style.boxShadow = 'none';
+          frame.style.width = '420px';
+          frame.style.height = '600px';
+        }
+      }
+      if (state) {
+        showState(state, null);
+      }
+    });
+  </script>
+</body>
+</html>
