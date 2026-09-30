@@ -1,4 +1,4 @@
-﻿# CEP Extension Screenshot Capture Methodology & Architecture
+# CEP Extension Screenshot Capture Methodology & Architecture
 
 This document details the exact methodology used to capture pixel-perfect, 2x high-resolution screenshots from the live Happy Duck AI Adobe Premiere Pro CEP extension panel.
 
@@ -80,8 +80,8 @@ Requires Node.js v18+ (or Node v22+ which includes native global `WebSocket`). N
 - Progress box: `#smartcut-progress-box` (`.sc-prog-fill`, `.sc-prog-pct`, `.sc-prog-stage`, `.sc-prog-detail`)
 - Waveform runtime object: `window.HDWaveform`
   - Clear: `window.HDWaveform.clear()`
-  - Load data: `window.HDWaveform.loadSnapshot(waveData)`
-  - Threshold line: `window.HDWaveform.setThreshold(-28)`
+  - Restore snapshot: `window.HDWaveform.restore(waveSnap)`
+  - Threshold line: rendered automatically from snap.threshold
 
 ### Captions Tab
 - Style Gallery: `#caption-templates-gallery`
@@ -99,32 +99,32 @@ Honest disclosure of how screenshots are rendered:
 | State | Status | Mechanism |
 |---|---|---|
 | `ui_01_smartcut_empty` | **100% Real DOM** | Natural empty state of the panel. |
-| `ui_02_smartcut_waveform` | **Hybrid** | Real canvas rendering engine (`HDWaveform.loadSnapshot`) driven by realistic voice speech bursts (-19dB speech, -48dB silence) with real threshold line. |
+| `ui_02_smartcut_waveform` | **Hybrid** | Real canvas rendering engine (`HDWaveform.restore(waveSnap)`) driven by realistic voice speech bursts (-19dB speech, -48dB silence) with real threshold line. |
 | `ui_03_smartcut_repetition_mode` | **100% Real DOM** | Real mode button click triggering genuine extension options panel. |
 | `ui_04_smartcut_silence_mode` | **100% Real DOM** | Real sliders and sensitivity settings. |
 | `ui_05_smartcut_progress` | **Real UI / Staged Progress** | Real progress element unhidden with realistic 58% snapshot to freeze the animation for photography. |
 | `ui_06_caption_templates` | **100% Real DOM** | Live templates gallery with all preset cards and color tokens. |
 | `ui_07_caption_generating` | **Real UI / Staged Progress** | Real progress element unhidden with 74% snapshot. |
-| `ui_08_caption_done_edit_button` | **100% Real DOM** | Live post-generation state with Edit button. |
+| `ui_08_caption_done_edit_button` | **Real UI / Staged State** | Progress bar at 100%, action button reveals Edit Captions button. |
 | `ui_09_caption_editor` | **Real UI / Staged Content** | Real modal structure with active overlay, populated with the real promotional dialogue rows for the video. |
 
 ---
 
 ## 5. Screen Recordings & Timeline Video Capture
 
-- **Tool**: Captured directly on Windows using `ffmpeg.exe` with `gdigrab` (`-f gdigrab -framerate 30 -draw_mouse 1 -i desktop`).
+- **Tool**: Captured directly on Windows using screen recording software (e.g., Windows Snipping Tool `Win+Shift+R`, OBS Studio, or Xbox Game Bar `Win+Alt+R`).
 - **Resolution**: Native 1920x1080 @ 30fps.
 - **Recordings (`cut_demo.mp4`, `caption_demo.mp4`)**:
-  Real screen recordings made while operating Premiere Pro with an actual speaker video clip on track A1/V1, executing the cut and ripple deletion live on the timeline.
+  Screen recordings made while operating Premiere Pro with an actual speaker video clip on track A1/V1, executing the cut and ripple deletion live on the timeline.
 
 ---
 
 ## 6. Language Switching
 
 The extension is bilingual (Arabic & English). Language switching is handled in `main.js`:
-- Setting `localStorage.setItem('hd_lang', 'en')` or `'ar'`
-- Invoking `window.setLanguage('en')` or `window.setLanguage('ar')`
-- The entire UI updates synchronously via `data-i18n` attribute translations and flips `dir="ltr"` or `dir="rtl"`.
+- Setting `localStorage.setItem('happyduck-lang', 'en')` or `'ar'`
+- Invoking `window.switchLanguage('en')` or `window.switchLanguage('ar')`
+- The entire UI updates synchronously via `data-i18n` attribute translations and sets `document.documentElement.lang` and `dir="rtl"` or `"ltr"`.
 
 ---
 
